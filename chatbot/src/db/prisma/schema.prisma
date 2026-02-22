@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Lead {
+  id                  String      @id @default(uuid())
+  phone               String      @unique
+  nome                String?
+  instrumentoInteresse String?
+  periodoPreferido    String?
+  origem              String?
+  status              String      @default("novo")
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+
+  messages            Message[]
+  matricula           Matricula?
+  session             Session?
+}
+
+model Message {
+  id          String   @id @default(uuid())
+  leadId      String
+  direction   String
+  text        String
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  lead        Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+}
+
+model Matricula {
+  id                           String   @id @default(uuid())
+  leadId                       String   @unique
+  matriculaStatus              String   @default("iniciada")
+  comprovanteUrl               String?
+  dataPagamento                DateTime?
+  responsavelFinanceiro        String?
+  cpfResponsavelFinanceiro     String?
+  periodoContratual            String?
+  formData                     Json?
+  createdAt                    DateTime @default(now())
+  updatedAt                    DateTime @updatedAt
+
+  lead                         Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+}
+
+model Session {
+  id          String   @id @default(uuid())
+  leadId      String   @unique
+  lastIntent  String?
+  contextJson Json?
+  updatedAt   DateTime @updatedAt
+
+  lead        Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+}

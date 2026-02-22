@@ -1,0 +1,38 @@
+version: '3.9'
+
+services:
+  chatbot:
+    build: .
+    container_name: srborem_chatbot
+    env_file:
+      - .env
+    ports:
+      - '3000:3000'
+    restart: unless-stopped
+    depends_on:
+      - postgres_chatbot
+      - redis_chatbot
+
+  postgres_chatbot:
+    image: postgres:15
+    container_name: postgres_chatbot
+    environment:
+      POSTGRES_DB: chatbot
+      POSTGRES_USER: chatbot
+      POSTGRES_PASSWORD: chatbot
+    ports:
+      - '5437:5432'
+    volumes:
+      - postgres_chatbot_data:/var/lib/postgresql/data
+
+  redis_chatbot:
+    image: redis:latest
+    container_name: redis_chatbot
+    ports:
+      - '6381:6379'
+    volumes:
+      - redis_chatbot_data:/data
+
+volumes:
+  postgres_chatbot_data:
+  redis_chatbot_data:
